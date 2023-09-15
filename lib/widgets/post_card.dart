@@ -13,6 +13,8 @@ class PostCard extends StatelessWidget {
       ),
       child: Column(
         children: [
+          // Header section
+
           Container(
             padding: const EdgeInsets.symmetric(
               vertical: 4,
@@ -73,6 +75,17 @@ class PostCard extends StatelessWidget {
                   icon: const Icon(Icons.more_vert),
                 ),
               ],
+            ),
+          ),
+
+          // Image section
+
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.35,
+            width: double.infinity,
+            child: Image.network(
+              'https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?cs=srgb&dl=pexels-anjana-c-674010.jpg&fm=jpg',
+              fit: BoxFit.cover,
             ),
           ),
         ],
