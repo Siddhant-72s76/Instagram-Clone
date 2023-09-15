@@ -88,6 +88,41 @@ class PostCard extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
+
+          // Like comment section
+
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.comment_outlined,
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.send,
+                ),
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.bookmark_outline),
+                    onPressed: () {},
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
