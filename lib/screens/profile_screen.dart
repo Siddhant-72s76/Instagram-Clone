@@ -1,21 +1,64 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/utils/colors.dart';
+import 'package:instagram_clone/utils/utils.dart';
 import 'package:instagram_clone/widgets/follow_button.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final String uid;
+  const ProfileScreen({super.key, required this.uid});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  var userData = {};
+  int postLen = 0;
+  int followers = 0;
+  int following = 0;
+  bool isFollowing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  getData() async {
+    try {
+      var userSnap = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.uid)
+          .get();
+
+      var postSnap = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .get();
+
+      postLen = postSnap.docs.length;
+      userData = userSnap.data()!;
+      followers = userSnap.data()!['followers'].length;
+      following = userSnap.data()!['following'].length;
+      isFollowing = userSnap
+          .data()!['followers']
+          .contains(FirebaseAuth.instance.currentUser!.uid);
+
+      setState(() {});
+    } catch (e) {
+      showSnackBar(e.toString(), context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
-        title: Text('username'),
+        title: Text(userData['username']),
       ),
       body: ListView(
         children: [
@@ -28,7 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     CircleAvatar(
                       backgroundColor: Colors.grey,
                       backgroundImage: NetworkImage(
-                        'https://i0.wp.com/stable-diffusion-art.com/wp-content/uploads/2023/01/01352-2629874737-A-digital-artstationd-dystopia-art-looking-side-way-fantasy_1.5-painting-of-Ana-de-Armas_-emma-watson_-0.8-in-street_1.5.png?fit=1408%2C896&ssl=1',
+                        userData['photoUrl'],
                       ),
                       radius: 40,
                     ),
@@ -40,21 +83,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              buildStatColumn(20, 'posts'),
-                              buildStatColumn(20, 'followers'),
-                              buildStatColumn(20, 'followings'),
+                              buildStatColumn(postLen, 'posts'),
+                              buildStatColumn(followers, 'followers'),
+                              buildStatColumn(following, 'followings'),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              FollowButton(
-                                backgroundColor: mobileBackgroundColor,
-                                borderColor: Colors.grey,
-                                text: 'Edit Profile',
-                                textColor: primaryColor,
-                                function: () {},
-                              ),
+                              FirebaseAuth.instance.currentUser!.uid ==
+                                      widget.uid
+                                  ? FollowButton(
+                                      backgroundColor: mobileBackgroundColor,
+                                      borderColor: Colors.grey,
+                                      text: 'Edit Profile',
+                                      textColor: primaryColor,
+                                      function: () {},
+                                    )
+                                  : isFollowing
+                                      ? FollowButton(
+                                          backgroundColor: Colors.white,
+                                          borderColor: Colors.grey,
+                                          text: 'Unfollow',
+                                          textColor: Colors.black,
+                                          function: () {},
+                                        )
+                                      : FollowButton(
+                                          backgroundColor: Colors.blue,
+                                          borderColor: Colors.blue,
+                                          text: 'Follow',
+                                          textColor: Colors.white,
+                                          function: () {},
+                                        ),
                             ],
                           ),
                         ],
@@ -66,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.only(top: 15),
                   child: Text(
-                    'username',
+                    userData['username'],
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
@@ -76,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.only(top: 1),
                   child: Text(
-                    'Some description',
+                    userData['bio'],
                   ),
                 ),
                 Divider(),
