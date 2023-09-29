@@ -152,7 +152,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           userData['bio'],
                         ),
                       ),
-                      Divider(),
+                      const Divider(),
+                      FutureBuilder(
+                        future: FirebaseFirestore.instance
+                            .collection('posts')
+                            .where('uid', isEqualTo: widget.uid)
+                            .get(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            itemCount: snapshot.data!.docs.length,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 5,
+                              mainAxisSpacing: 1.5,
+                              childAspectRatio: 1,
+                            ),
+                            itemBuilder: (context, index) {
+                              DocumentSnapshot snap =
+                                  snapshot.data!.docs[index];
+
+                              return Container(
+                                child: Image(
+                                  image: NetworkImage(
+                                    snap['postUrl'],
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
