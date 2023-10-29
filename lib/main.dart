@@ -69,11 +69,10 @@ class MyApp extends StatelessWidget {
               );
             }
 
-            return LoginScreen();
+            return const LoginScreen();
           },
         ),
       ),
     );
   }
 }
-// 5:40:00
